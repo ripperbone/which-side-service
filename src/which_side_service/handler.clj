@@ -6,7 +6,9 @@
             [environ.core :refer [env]]
             ;[ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+            [ring.middleware.json :refer [wrap-json-response]]
             [ring.util.response]
+            [cheshire.core :as json]
             [clj-time.core]
             [clj-time.local]))
 
@@ -39,6 +41,24 @@
     "across the street."))
 
 (defroutes app-routes
+  (GET "/" []
+    (ring.util.response/content-type
+      (ring.util.response/response
+         "If house number is even, use /even. If house number is odd, use /odd.")
+         "text/plain"))
+
+  (GET "/json" []
+     (ring.util.response/content-type
+        (ring.util.response/response
+           (json/generate-string {
+                :Date (clj-time.local/local-now)
+                :Day (which-day)
+                :HouseEven (which-side true (which-day))
+                :HouseOdd (which-side false (which-day))
+             }))
+           "application/json"))
+
+
   (GET "/:house-side{(even|odd)}" [house-side]
     (ring.util.response/content-type
       (ring.util.response/response
@@ -53,6 +73,12 @@
 
 (def app
   (wrap-defaults app-routes site-defaults))
+
+; https://stackoverflow.com/questions/46859881/clojure-encode-joda-datetime-with-ring-json
+(extend-protocol cheshire.generate/JSONable
+   org.joda.time.DateTime
+   (to-json [dt gen]
+      (cheshire.generate/write-string gen (str dt))))
 
 ;(def reloadable-app
 ;   (wrap-reload #'app))

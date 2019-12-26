@@ -1,6 +1,7 @@
 (ns which-side-service.handler-test
   (:require [clojure.test :refer :all]
             [ring.mock.request :as mock]
+            [cheshire.core :as json]
             [which-side-service.handler :refer :all]))
 
 (deftest test-app
@@ -9,6 +10,12 @@
     (let [response (app (mock/request :get "/even"))]
       (is (= (:status response) 200))
       (is (some #{(:body response)} '("in front of house." "across the street")))))
+
+  (testing "gets json response"
+    (let [response (app (mock/request :get "/json"))]
+      (is (= (:status response) 200))
+      (is (= (get (:headers response) "Content-Type") "application/json"))
+      (is (map? (json/parse-string (:body response))))))
 
   (testing "not-found route"
     (let [response (app (mock/request :get "/invalid"))]

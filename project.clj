@@ -7,7 +7,9 @@
                  [environ "1.1.0"]
                  [ring/ring-defaults "0.3.2"]
                  [ring/ring-jetty-adapter "1.7.1"]
-                 [clojure.java-time "0.3.2"]]
+                 [ring/ring-json "0.5.0"]
+                 [clojure.java-time "0.3.2"]
+                 [cheshire "5.9.0"]]
   :plugins [[lein-ring "0.12.4"]]
   :ring {:handler which-side-service.handler/app}
   :uberjar-name "which-side-service-standalone.jar"
