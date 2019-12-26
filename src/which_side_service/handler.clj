@@ -1,6 +1,9 @@
 (ns which-side-service.handler
   (:require [compojure.core :refer :all]
+            [compojure.handler :refer [site]]
             [compojure.route :as route]
+            [ring.adapter.jetty :as jetty]
+            [environ.core :refer [env]]
             ;[ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response]
@@ -53,3 +56,7 @@
 
 ;(def reloadable-app
 ;   (wrap-reload #'app))
+
+(defn -main [& [port]]
+  (let [port (Integer. (or port (env :port) 3000))]
+    (jetty/run-jetty (site #'app) {:port port :join? false})))
